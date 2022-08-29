@@ -40,3 +40,60 @@ class bolt():
         else:
             fhk = 50 * self.d **(-0.6) * t**0.2
             return fhk
+    
+    def a1(self):
+        '''method that calculates min a1 distance of the bolt 
+        
+        returns value in [mm]
+        '''
+        return (4 + math.abs(math.cos(self.alfa))) * self.d
+    
+    def a2(self):
+        '''method that calculates min a2 distance of the bolt 
+        
+        returns value in [mm]
+        '''
+        return 4 * self.d
+        
+    def a3(self):
+        '''method that returns min a3 loaded or unloaded edge distance. 
+        
+        Whether its loaded or unloaded depends on the angle alfa
+        returns value in [mm]
+        '''
+        alfa = self.alfa / 180 * math.pi
+        
+        if self.alfa <= 90 or self.alfa >= 270:
+            return max(7 * self.d, 80)
+        
+        elif self.alfa > 90 and self.alfa <150:
+            return (1 + 6 * sin(alfa)) * self.d
+            
+        elif self.alfa >= 150 and self.alfa < 210:
+            return 4 * self.d
+            
+        else:
+            return (1 + 6 * sin(alfa)) * self.d
+            
+    def a4t(self):
+        '''method that returns min a4 distance to loaded edge. 
+        
+        returns value in [mm]
+        '''
+        alfa = self.alfa / 180 * math.pi
+        
+        return max(2 + 2 * sin(alfa) * self.d, 3 * self.d) 
+        
+    def a4c(self):
+        '''method that returns min a4 distance to UNloaded edge. 
+        
+        returns value in [mm]
+        '''
+        
+        return 3 * self.d
+    
+        
+    
+    
+            
+    
