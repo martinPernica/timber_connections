@@ -44,21 +44,63 @@ class Row():
         n = self.n()
         n_eff = n**0.9 * (self.a1 / 13 / self.bolts[0].d) ** 0.25
         return min(n, n_eff)
-        
-        
+
+class Member():
+    '''class defining timber member
     
+    t: thickness of member [mm]
+    h: height of member [mm]
+    '''
+    
+    def __init__(self,t,h):
+        self.t = t
+        self.h = h
+
+class GroupOfBolts():
+    '''class defining group of bolts in timber joint
+    
+    rows: [list] of Rows objects
+    member: instance of Member class i.e. definition of timber member
+    
+    '''
+    def __init__(self,rows,member):
+        self.rows = rows
+        self.member = member
+        
+    def checkA1(self):
+        '''method checking min a1 distance of each row
+        
+        returns True if check OK otherwise False
+        '''
+        returnValue = True
+        for row in self.rows:
+            a1s = []
+            for bolt in row.bolts:
+                a1s.append(bolt.distances["a1"])
+            maxA1 = max(a1s) #extracts maximum a1 distance from all bolts.
+            
+            if maxA1 >= row.a1:
+                returnValue = False #default True value is switched to False once maximum a1 from each bolt is greater than actual a1 distances in model
+        return returnValue
+        
+    def cehckA2(self):
+        '''method checking min a2 distance of each row
+        
+        returns True if check OK otherwise False
+        '''
+        returnValue = True
+ 
 
 bolts = []
 for i in range(0,3):
-    print(i)
     bolt = connectors.bolt(16,460,350,50*i,100)
     bolts.append(bolt)
     
 row1 = Row([80,40],16*15,bolts)
-for bolt in row1.bolts:
-    print(bolt.distances)
-print(row1.n())
-print(row1.neff())
-
 row2 = Row([80,-40],16*7,bolts)
+
+member = Member(120, 360)
+group = GroupOfBolts([row1, row2], member)
+
+group.checkA1()
 
