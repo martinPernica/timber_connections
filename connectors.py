@@ -82,7 +82,7 @@ class bolt():
         '''
         alfa = self.alfa / 180 * math.pi
         
-        return max(2 + 2 * math.sin(alfa) * self.d, 3 * self.d) 
+        return max((2 + 2 * math.sin(alfa)) * self.d, 3 * self.d) 
         
     def a4c(self):
         '''method that returns min a4 distance to UNloaded edge. 

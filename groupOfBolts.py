@@ -86,6 +86,7 @@ class GroupOfBolts():
             
             if minA1 >= row.a1:
                 returnValue = False #default True value is switched to False once maximum a1 from each bolt is greater than actual a1 distances in model
+        
         return returnValue
         
     def checkA2(self):
@@ -107,24 +108,101 @@ class GroupOfBolts():
                 if distance <= minA2:
                     returnValue = False #swithc returnValue to false if a2 is not satisfactory
                     print("distance is not satisfactory")
+                    
         return returnValue
         
+    def checkA3(self):
+        '''method checking min a3 distance of first bolt in row
+        
+        returns True if check OK otherwise False
+        '''
+        beta = self.member.beta/180 * math.pi
+        returnValue = True
+        for row in self.rows:
+            minA3 = row.bolts[0].distances["a3"]
+            x = row.start[0]
+            y = row.start[1]
+            #calculate X coordinate of intersection betweel center line of row and the end of timber
+            xEdge = y * math.tan(beta)
+            #distance between end of member and edge end of row
+            a3 = x - xEdge
+            print("end distance a3 is {} mm, minimum distance a3 is {} mm".format(a3, minA3))
+            if minA3 > a3:
+                print("distance a3 is not satisfactory")
+                returnValue = False
                 
+        return returnValue
+    
+    def checkA4(self):
+        '''method checking min a4 distance of each BOLT
+        
+        returns True if check OK otherwise False
+        '''
+        returnValue = True
+        for row in self.rows:
+            rowNo = self.rows.index(row)
+            y = row.start[1]
+            toTop = self.member.h / 2 - y
+            toBottom = self.member.h / 2 + y
+            print("row no {} to TOP {} mm to BOTTOM {} mm".format(rowNo, toTop, toBottom))
+                        
+            for bolt in row.bolts:
+                boltNo = row.bolts.index(bolt)
+                print("row no {} - bolt no {} - alfa  {} degree".format(rowNo, boltNo,bolt.alfa))
+                
+                minA4t = bolt.distances["a4t"]
+                minA4c = bolt.distances["a4c"]
+                alfa = bolt.alfa / 180 * math.pi
+                
+                if alfa <= math.pi:
+                    if minA4t > toBottom:
+                        returnValue = False
+                        print("BOTTOM edge is loaded, min a4t {} mm is NOT OK".format(minA4t))
+                    else:
+                        print("BOTTOM edge is loaded, min a4t {} mm is OK".format(minA4t))
                     
-
+                    if minA4c > toTop:
+                        returnValue = False
+                        print("TOP edge is NOTloaded, min a4c {} mm is NOT OK".format(minA4c))
+                    else:
+                        print("TOP edge is NOTloaded, min a4c {} mm is OK".format(minA4c))
+                
+                else:
+                    if minA4t > toTop:
+                        returnValue = False 
+                        print("BOTTOM edge is NOTloaded, min a4c {} mm is NOT OK".format(minA4c))
+                    else:
+                        print("BOTTOM edge is NOTloaded, min a4c {} mm is OK".format(minA4c))
+                    
+                    if minA4c > toBottom:
+                        returnValue = False
+                        print("TOP edge is loaded, min a4t {} mm is NOT OK".format(minA4t))
+                    else:
+                        print("TOP edge is loaded, min a4t {} mm is OK".format(minA4t))
+        
+        return returnValue
+                    
 
 bolts = []
 for i in range(0,3):
     bolt = connectors.bolt(16,460,350,50*i,100)
     bolts.append(bolt)
     
-row1 = Row([80,40],16*15,bolts)
-row2 = Row([80,-40],16*7,bolts)
+row1 = Row([80,140],16*15,bolts)
+row2 = Row([80,-140],16*7,bolts)
 row3 = Row([80,0],16*7,bolts)
 
-member = Member(120, 360)
+member = Member(120, 360, 35)
 group = GroupOfBolts([row1, row2, row3], member)
 
+print("__CHECK OF A1__")
 group.checkA1()
+print("__CHECK OF A2__")
 group.checkA2()
+print("__CHECK OF A3__")
+group.checkA3()
+print("__CHECK OF A4__")
+group.checkA4()
+
+
 
