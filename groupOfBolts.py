@@ -50,11 +50,13 @@ class Member():
     
     t: thickness of member [mm]
     h: height of member [mm]
+    beta: angle of chamfer [degree]
     '''
     
-    def __init__(self,t,h):
+    def __init__(self,t,h,beta=0):
         self.t = t
         self.h = h
+        self.beta = beta
 
 class GroupOfBolts():
     '''class defining group of bolts in timber joint
@@ -66,6 +68,9 @@ class GroupOfBolts():
     def __init__(self,rows,member):
         self.rows = rows
         self.member = member
+        self.noOfRows = len(rows)
+        self.topEdgeY = member.h / 2
+        self.bottomEdgeY = - member.h / 2
         
     def checkA1(self):
         '''method checking min a1 distance of each row
@@ -77,19 +82,36 @@ class GroupOfBolts():
             a1s = []
             for bolt in row.bolts:
                 a1s.append(bolt.distances["a1"])
-            maxA1 = max(a1s) #extracts maximum a1 distance from all bolts.
+            minA1 = max(a1s) #extracts maximum a1 distance from all bolts.
             
-            if maxA1 >= row.a1:
+            if minA1 >= row.a1:
                 returnValue = False #default True value is switched to False once maximum a1 from each bolt is greater than actual a1 distances in model
         return returnValue
         
-    def cehckA2(self):
+    def checkA2(self):
         '''method checking min a2 distance of each row
         
         returns True if check OK otherwise False
         '''
         returnValue = True
- 
+        for i in range(0, self.noOfRows):
+            minA2 = self.rows[i].bolts[0].distances["a2"] #min a2 is the same for all bolts provided they have the same diamteter... which I assume they will have
+            yi = self.rows[i].start[1] #get y coordinate of the beginning of row
+            for j in range(0, self.noOfRows):
+                if i == j:
+                    continue
+                    print("passing")
+                yj = self.rows[j].start[1]
+                distance = abs(yi - yj)
+                print("distance between row {} and {} is {} mm".format(i,j,distance))
+                if distance <= minA2:
+                    returnValue = False #swithc returnValue to false if a2 is not satisfactory
+                    print("distance is not satisfactory")
+        return returnValue
+        
+                
+                    
+
 
 bolts = []
 for i in range(0,3):
@@ -98,9 +120,11 @@ for i in range(0,3):
     
 row1 = Row([80,40],16*15,bolts)
 row2 = Row([80,-40],16*7,bolts)
+row3 = Row([80,0],16*7,bolts)
 
 member = Member(120, 360)
-group = GroupOfBolts([row1, row2], member)
+group = GroupOfBolts([row1, row2, row3], member)
 
 group.checkA1()
+group.checkA2()
 
