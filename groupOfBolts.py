@@ -183,7 +183,7 @@ class GroupOfBolts():
         return returnValue
                     
 
-bolts = []
+'''bolts = []
 for i in range(0,3):
     bolt = connectors.bolt(16,460,350,50*i,100)
     bolts.append(bolt)
@@ -202,7 +202,7 @@ group.checkA2()
 print("__CHECK OF A3__")
 group.checkA3()
 print("__CHECK OF A4__")
-group.checkA4()
+group.checkA4()'''
 
 
 
