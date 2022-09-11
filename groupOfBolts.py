@@ -12,6 +12,8 @@ class Row():
         self.a1 = a1
         self.bolts = bolts
         self.edgeDistances()
+        self.boltCoordinates()
+        #self.printBoltCoordinates()
 
     
     def edgeDistances(self):
@@ -33,6 +35,19 @@ class Row():
             }
             setattr(bolt, "distances", distances)
             
+    def boltCoordinates(self):
+        '''method adding [x,y] coordinate to each bolt
+        '''
+        a1Tot = 0
+        for bolt in self.bolts:
+            x = self.start[0] + a1Tot
+            y = self.start[1]
+            a1Tot += self.a1
+            coordinates = [x, y]
+            #print("coordinates {}".format(coordinates))
+            setattr(bolt, "coordinates", coordinates)
+            #print("saved coordinates: {}".format(bolt.coordinates))           
+            
     def n(self):
         '''function that returns actual number of bolts in one row
         '''
@@ -44,6 +59,10 @@ class Row():
         n = self.n()
         n_eff = n**0.9 * (self.a1 / 13 / self.bolts[0].d) ** 0.25
         return min(n, n_eff)
+    
+    def printBoltCoordinates(self):
+        for bolt in self.bolts:
+            print("X = {}, Y = {}".format(bolt.coordinates[0], bolt.coordinates[1]))
 
 class Member():
     '''class defining timber member
@@ -181,6 +200,15 @@ class GroupOfBolts():
                         print("TOP edge is loaded, min a4t {} mm is OK".format(minA4t))
         
         return returnValue
+        
+    def printBoltCoordinates(self):
+        i = 0
+        for row in self.rows:
+            j = 0
+            for bolt in row.bolts:
+                print("row {} - bolt {}: x = {}, y = {}".format(i,j,bolt.coordinates[0],bolt.coordinates[1]))
+                j += 1
+            i += 1
                     
 
 '''bolts = []
