@@ -1,18 +1,20 @@
 import math
 
 class bolt():
-    def __init__(self, d, fu, ro, alfa, t, woodType = "softWood", board = "No"):
+    def __init__(self, d, fu, ro, alfa, t, tp = 0, woodType = "softWood", board = "No"):
         '''woodTypes: Board, Softwood, LVL, Hardwood. Not important for boards
         board: No, plywood, OSB
-        t = thickness
+        t = thickness of timber
+        tpl = thickness of plate if any
         '''
         self.d = float(d)
         self.fu = float(fu)
         self.ro = float(ro)
-        self.alfa = float(alfa)
+        self.alfa = float(alfa) #angle in degrees
         self.woodType = woodType
         self.board = board
         self.t = float(t)
+        self.tp = float(tp)
     
     def MyRk(self):
         '''method that calculates characteristic yield moment

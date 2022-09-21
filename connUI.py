@@ -1,8 +1,8 @@
 import typer
 import tkinter
 import math
-import connectors
-import groupOfBolts
+from scripts import connectors
+from scripts import groupOfBolts
 
 
 class drawConnection():
@@ -102,7 +102,7 @@ class drawConnection():
         '''Draws all bolts from "group" parameter
         '''
         for row in self.group.rows:
-            startX = row.start[0] #coortinates relative to center of member
+            startX = row.start[0] #coordinates relative to center of member
             startY = row.start[1] #in groupFoBolts model Y is up, in canvas Y is down            
 
             for bolt in row.bolts:    
@@ -131,35 +131,36 @@ class ConnInput():
 
 
 
-
-bolts1 = []
-for i in range(0,5):
-    bolt = connectors.bolt(16,460,350,50*i,100)
-    bolts1.append(bolt)
-    
-bolts2 = []
-for i in range(0,5):
-    bolt = connectors.bolt(16,460,350,50*i,100)
-    bolts2.append(bolt)
-    
-bolts3 = []
-for i in range(0,5):
-    bolt = connectors.bolt(16,460,350,50*i,100)
-    bolts3.append(bolt)
-    
-
-
-row1 = groupOfBolts.Row([80 + 100 * math.tan(45/180*math.pi),100],16*9,bolts1)
-row2 = groupOfBolts.Row([80 - 100 * math.tan(45/180*math.pi),-100],16*9,bolts2)
-row3 = groupOfBolts.Row([80,0],16*9,bolts3) 
-
-member = groupOfBolts.Member(120, 360, 45)
-group = groupOfBolts.GroupOfBolts([row1, row2, row3], member)
-
-main = tkinter.Tk()
-connection = drawConnection(main, member, group)
-connection.drawConnection()
+if __name__ == "__main__":
+    bolts1 = []
+    for i in range(0,5):
+        bolt = connectors.bolt(16,460,350,0*i,100)
+        bolts1.append(bolt)
+        
+    bolts2 = []
+    for i in range(0,1):
+        bolt = connectors.bolt(16,460,350,0*i,100)
+        bolts2.append(bolt)
+        
+    bolts3 = []
+    for i in range(0,5):
+        bolt = connectors.bolt(16,460,350,50*i,100)
+        bolts3.append(bolt)
+        
 
 
-#pict.pack()
-#top.mainloop()
+    row1 = groupOfBolts.Row([80 + 100 * math.tan(45/180*math.pi),100],16*9,bolts1)
+    row2 = groupOfBolts.Row([80 - 100 * math.tan(45/180*math.pi),-100],250,bolts2)
+    row3 = groupOfBolts.Row([80,0],16*9,bolts3) 
+
+    member = groupOfBolts.Member(120, 360, 45)
+    group = groupOfBolts.GroupOfBolts([row1, row2, row3], member)
+    group.designShearResistance(toPrint = True)
+
+    main = tkinter.Tk()
+    connection = drawConnection(main, member, group)
+    connection.drawConnection()
+
+
+    #pict.pack()
+    #top.mainloop()

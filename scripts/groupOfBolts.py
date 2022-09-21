@@ -1,4 +1,5 @@
-import connectors
+from . import connectors
+from . import timberShearJoints as joints
 import math
 
 class Row():
@@ -13,6 +14,7 @@ class Row():
         self.bolts = bolts
         self.edgeDistances()
         self.boltCoordinates()
+        self.charResistance()
         #self.printBoltCoordinates()
 
     
@@ -63,6 +65,54 @@ class Row():
     def printBoltCoordinates(self):
         for bolt in self.bolts:
             print("X = {}, Y = {}".format(bolt.coordinates[0], bolt.coordinates[1]))
+            
+    def charResistance(self, joint = "timberPlatetTimber"):
+        '''method adding F_v,Rk to each bolt
+        '''
+        for bolt in self.bolts:
+            nred = self.neff() / self.n()
+            alfa = bolt.alfa # in degree
+            #calculate char shear resistance for alfa = 0
+            Fvrk0 = 0
+            bolt.alfa = 0
+            if joint == "timber2":
+                pass
+            elif joint == "timber3":
+                pass
+            elif joint == "timberPlate":
+                Fvrk0 = joints.timberPlate(bolt).Fvrk()
+            elif joint == "timberPlatetTimber":
+                Fvrk0 = joints.timberPlateTimber(bolt).Fvrk()
+            elif joint == "plateTimberPlate":
+                Fvrk0 = joints.plateTimberPlate(bolt).Fvrk()
+            print("Fvrk0 = {}".format(Fvrk0))    
+            Fvrk0 = Fvrk0 * nred
+                        
+            #calculata char shear resistance fo alfa = 90
+            Fvrk90 = 0            
+            bolt.alfa = 90  
+            if joint == "timber2":
+                pass
+            elif joint == "timber3":
+                pass
+            elif joint == "timberPlate":
+                Fvrk90 = joints.timberPlate(bolt).Fvrk()
+            elif joint == "timberPlatetTimber":
+                Fvrk90 = joints.timberPlateTimber(bolt).Fvrk()
+            elif joint == "plateTimberPlate":
+                Fvrk90 = joints.plateTimberPlate(bolt).Fvrk()
+                
+            #calculate interpolated value
+            bolt.alfa = alfa #return the original value
+            ns = int(alfa/90)
+            alfaRed = alfa - ns * 90
+            Fvrk = 0
+            if Fvrk0 >= Fvrk90:
+                Fvrk = Fvrk90 + (Fvrk0 - Fvrk90) * (90 - alfaRed) / 90
+            else:
+                Fvrk = Fvrk0 + (Fvrk90 - Fvrk0) * alfaRed / 90
+            setattr(bolt, "Fvrk", Fvrk)
+            
 
 class Member():
     '''class defining timber member
@@ -90,6 +140,15 @@ class GroupOfBolts():
         self.noOfRows = len(rows)
         self.topEdgeY = member.h / 2
         self.bottomEdgeY = - member.h / 2
+        self.rowNumbering()
+        
+    def rowNumbering(self):
+        '''sets row number to each row
+        '''
+        i = 1
+        for row in self.rows:
+            setattr(row, "no", i)
+            i += 1
         
     def checkA1(self):
         '''method checking min a1 distance of each row
@@ -208,8 +267,28 @@ class GroupOfBolts():
             for bolt in row.bolts:
                 print("row {} - bolt {}: x = {}, y = {}".format(i,j,bolt.coordinates[0],bolt.coordinates[1]))
                 j += 1
-            i += 1
-                    
+            i += 1  
+
+    def designShearResistance(self, gammaM = 1, kmod = 1, toPrint = False):
+        '''returns design shear resistance for each bolt
+        
+            if toPrin = True values will be printed
+        '''
+        returnValue = {}
+        for row in self.rows:
+            no = row.no
+            returnValue[no] = None
+            j = 0
+            vals = []
+            for bolt in row.bolts:
+                vals.append(bolt.Fvrk)
+            returnValue[no] = vals
+        if toPrint:
+            print(returnValue)
+            
+        return returnValue
+            
+                          
 
 '''bolts = []
 for i in range(0,3):

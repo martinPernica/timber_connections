@@ -104,12 +104,15 @@ class timberPlate():
     '''class that calculates shear resistance of timber to plate connection.
     
     ply1 is an instance of bolt class, tp is thickness of the plate'''
-    def __init__(self, ply1, tp):
+    def __init__(self, ply1, tp = 0):
         self.d = float(ply1.d)
         self.t1 = float(ply1.t)
         self.fhk1 = ply1.fhk()
         self.Myrk = ply1.MyRk()
-        self.tp = float(tp)
+        if tp != 0: #this is for a backward compability
+            self.tp = float(tp)
+        else:
+            ply1.tp = ply1.tp
     
     def FvrkA(self):
         Fvrk = 0.4 * self.fhk1 * self.t1 * self.d
@@ -148,12 +151,15 @@ class timberPlate():
 
 class timberPlateTimber():
 
-    def __init__(self, ply1, tp):
+    def __init__(self, ply1, tp = 0):
         self.d = float(ply1.d)
         self.t1 = float(ply1.t)
         self.fhk1 = ply1.fhk()
         self.Myrk = ply1.MyRk()
-        self.tp = float(tp)
+        if tp != 0: #this is for a backward compability
+            self.tp = float(tp)
+        else:
+            ply1.tp = ply1.tp
     
     def FvrkF(self):
         Fvrk = self.fhk1 * self.t1 * self.d
@@ -175,12 +181,15 @@ class timberPlateTimber():
         
 class plateTimberPlate():
 
-    def __init__(self, ply1, tp):
+    def __init__(self, ply1, tp = 0):
         self.d = float(ply1.d)
         self.t2 = float(ply1.t)
         self.fhk2 = ply1.fhk()
         self.Myrk = ply1.MyRk()
-        self.tp = float(tp)
+        if tp != 0: #this is for a backward compability
+            self.tp = float(tp)
+        else:
+            ply1.tp = ply1.tp
         
     def FvrkJ(self):
         Fvrk = 0.5 * self.fhk2 * self.t2 * self.d
