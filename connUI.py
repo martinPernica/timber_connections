@@ -160,6 +160,8 @@ if __name__ == "__main__":
     main = tkinter.Tk()
     connection = drawConnection(main, member, group)
     connection.drawConnection()
+    
+    print("window was closed")
 
 
     #pict.pack()

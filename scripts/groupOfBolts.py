@@ -1,6 +1,16 @@
-from . import connectors
-from . import timberShearJoints as joints
 import math
+import os
+import sys
+import copy
+
+current_dir = os.path.dirname(os.path.realpath(__file__))
+parrent_dir = os.path.dirname(current_dir)
+scripts_dir = os.path.join(parrent_dir, "scripts")
+sys.path.append(scripts_dir)
+
+import connectors
+import timberShearJoints as joints
+
 
 class Row():
     def __init__(self, start, a1, bolts):
@@ -66,7 +76,7 @@ class Row():
         for bolt in self.bolts:
             print("X = {}, Y = {}".format(bolt.coordinates[0], bolt.coordinates[1]))
             
-    def charResistance(self, joint = "timberPlatetTimber"):
+    def charResistance0(self, joint = "timberPlatetTimber"):
         '''method adding F_v,Rk to each bolt
         '''
         for bolt in self.bolts:
@@ -85,9 +95,13 @@ class Row():
                 Fvrk0 = joints.timberPlateTimber(bolt).Fvrk()
             elif joint == "plateTimberPlate":
                 Fvrk0 = joints.plateTimberPlate(bolt).Fvrk()
-            print("Fvrk0 = {}".format(Fvrk0))    
-            Fvrk0 = Fvrk0 * nred
-                        
+            #print("Fvrk0 = {}".format(Fvrk0)) 
+            bolt.alfa = alfa #return original value of the alfa
+            setattr(bolt, "Fvrk0",Fvrk0)
+
+    def charResistance90(self, joint = "timberPlateTimber"):
+        for bolt in self.bolts:
+            alfa = bolt.alfa
             #calculata char shear resistance fo alfa = 90
             Fvrk90 = 0            
             bolt.alfa = 90  
@@ -101,18 +115,77 @@ class Row():
                 Fvrk90 = joints.timberPlateTimber(bolt).Fvrk()
             elif joint == "plateTimberPlate":
                 Fvrk90 = joints.plateTimberPlate(bolt).Fvrk()
+            bolt.alfa = alfa #return original value of the alfa
+            setattr(bolt, "Fvrk90",Fvrk90)
                 
+    def charResistance(self, joint = "timberPlateTimber"):
+        '''calculate interpolated value between Fvrk and Fvrk 90
+        '''
+        self.charResistance0(joint = joint)
+        self.charResistance90(joint = joint)
+        
+        nred = self.neff() / self.n()
+        
+        for bolt in self.bolts:        
             #calculate interpolated value
-            bolt.alfa = alfa #return the original value
+            alfa = bolt.alfa #return the original value
             ns = int(alfa/90)
-            alfaRed = alfa - ns * 90
+            alfaRed = alfa - ns * 90 #calculates angle between 0 and 90 
             Fvrk = 0
+            Fvrk0 = bolt.Fvrk0
+            Fvrk90 = bolt.Fvrk90
+            
             if Fvrk0 >= Fvrk90:
                 Fvrk = Fvrk90 + (Fvrk0 - Fvrk90) * (90 - alfaRed) / 90
             else:
                 Fvrk = Fvrk0 + (Fvrk90 - Fvrk0) * alfaRed / 90
             setattr(bolt, "Fvrk", Fvrk)
+    
+    def changeBoltsDiameter(self, d):
+        for bolt in self.bolts:
+            bolt.d = d
+    
+    def changeBoltsFu(self,fu):
+        for bolt in self.bolts:
+            bolt.fu = fu
             
+    def changeTimberThicnkess(self, t):
+        for bolt in self.bolts:
+            bolt.t = t
+    
+    def changeTimberDensity(self, ro):
+        for bolt in self.bolts:
+            bolt.ro = ro
+    
+    def changePlateThickness(self, tp):
+        for bolt in self.bolts:
+            bolt.tp = tp
+            
+    def changeNoBolts(self, No):
+        '''method that chenges no of bolts in one row
+        
+        all bolts have to be of the same specificatio i.e. material, diameter etc.
+        '''
+        nActulal = len(self.bolts)
+        bolt = copy.deepcopy(self.bolts[0])
+        
+        while True:
+            if No < nActual:
+                self.bolts.pop()
+            else:
+                break
+        
+        while True:
+            if No > nActual:
+                self.bolts.append(bolt)
+            else:
+                break
+    
+    def changeA1(self, a1):
+        self.a1 = a1
+    
+    def changeStart(self, start):
+        self.start = start
 
 class Member():
     '''class defining timber member
@@ -125,6 +198,15 @@ class Member():
     def __init__(self,t,h,beta=0):
         self.t = t
         self.h = h
+        self.beta = beta
+    
+    def changeT(self, t):
+        self.t = t
+    
+    def changeH(self, h):
+        self.h = h
+    
+    def changeBeta(self, beta):
         self.beta = beta
 
 class GroupOfBolts():
@@ -149,6 +231,22 @@ class GroupOfBolts():
         for row in self.rows:
             setattr(row, "no", i)
             i += 1
+            
+    def deleteRow(self, no):
+        '''delete row with a "no" number and reruns numbering of all rows
+        '''
+        for row in self.rows:
+            if row.no == no:
+                self.rows.remove(row)
+        self.rowNumbering()
+        
+    def addRow(self,row):
+        '''adds row and runs renumbering of all rows
+        
+        row has to be an instance of the groupOfBolts.row class
+        '''
+        self.rows.append(row)
+        self.rowNumbering()
         
     def checkA1(self):
         '''method checking min a1 distance of each row
