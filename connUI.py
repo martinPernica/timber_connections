@@ -7,11 +7,11 @@ from scripts import groupOfBolts
 
 class drawConnection():
 
-    def __init__(self,main, member, group, margins = [40,40,40,40]):
+    def __init__(self,container, member, group, margins = [40,40,40,40]):
         '''main: main window of tkinter
         '''
-        self.main = main
-        self.pict = tkinter.Canvas(self.main, height = 250, width = 300, bg = "green")
+        self.container = container
+        self.pict = tkinter.Canvas(self.container, height = 250, width = 300, bg = "green")
         self.pict.pack()
         self.pict.update() #update to get correct widget sizes
         self.member = member #instance of groupOfBolts.Member
@@ -109,27 +109,31 @@ class drawConnection():
                 x = ctr[0] + bolt.coordinates[0] * scale
                 y = ctr[1] - bolt.coordinates[1] * scale
                 self.drawBolt([x,y])
+                
+    def drawRowAxes(self, ctr, scale):
+        for row in self.group.rows:
+            startX = ctr[0] + row.bolts[0].coordinates[0] * scale
+            startY = ctr[1] - row.bolts[0].coordinates[1] * scale
+            endX = ctr[0] + row.bolts[-1].coordinates[0] * scale
+            endY = ctr[0] - row.bolts[-1].coordinates[1] * scale
+            
+            self.pict.create_line(startX,startY,endX,endY, fill = "red")
+            
+    def drawLineNumbers(self,ctr, scale):
+        for row in self.group.rows:
+            no = row.no
+            x = ctr[0] + row.start[0] * scale - 20
+            y = ctr[1] - row.start[1] * scale
+            self.pict.create_text(x, y, text = no, fill = "orange")
     
     def drawConnection(self):
         drawParams = self.drawTimber() #draws timber + extracts drawing parameters
         scale = drawParams["scale"]
         ctr = drawParams["ctr"]
-        self.drawGroupOfBolts(ctr, scale)
-        self.main.mainloop()
-
-class ConnInput():
-
-    def __init__(self):
-        '''this class is a container for input methods
-        '''
-    
-    def createMember(delf):
-        print("member width in [mm] = ")
-        b = float(input())
-        print("member height in [mm] =")
-        h = float(input())
-
-
+        self.drawRowAxes(ctr, scale)
+        self.drawGroupOfBolts(ctr, scale) 
+        self.drawLineNumbers(ctr, scale)
+        self.container.mainloop()
 
 if __name__ == "__main__":
     bolts1 = []
