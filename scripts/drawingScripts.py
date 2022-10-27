@@ -11,8 +11,8 @@ class drawConnection():
         '''main: main window of tkinter
         '''
         self.container = container
-        self.pict = tkinter.Canvas(self.container, height = 250, width = 300, bg = "green")
-        self.pict.pack()
+        self.pict = tkinter.Canvas(self.container, bg = "green")
+        self.pict.grid(row=0, column=0, sticky = "nsew")
         self.pict.update() #update to get correct widget sizes
         self.member = member #instance of groupOfBolts.Member
         self.group = group #instance of groupOfBolts.GroupOfBolts
@@ -23,7 +23,7 @@ class drawConnection():
     def maxX(self):
         '''calculates maximal X coordinate of any bolt relative to member reference point
         '''
-        for row in group.rows:
+        for row in self.group.rows:
             maxX = 0
             for bolt in row.bolts:
                 x = bolt.coordinates[0]
@@ -133,7 +133,7 @@ class drawConnection():
         self.drawRowAxes(ctr, scale)
         self.drawGroupOfBolts(ctr, scale) 
         self.drawLineNumbers(ctr, scale)
-        self.container.mainloop()
+        #self.container.mainloop()
 
 if __name__ == "__main__":
     bolts1 = []
