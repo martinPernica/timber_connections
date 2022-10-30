@@ -17,8 +17,8 @@ class drawConnection():
         self.member = member #instance of groupOfBolts.Member
         self.group = group #instance of groupOfBolts.GroupOfBolts
         self.margins = margins #margins in pixels
-        print(self.pict.winfo_width())
-        print(self.pict.winfo_height())
+        #print(self.pict.winfo_width())
+        #print(self.pict.winfo_height())
     
     def maxX(self):
         '''calculates maximal X coordinate of any bolt relative to member reference point
@@ -70,7 +70,7 @@ class drawConnection():
             
         #draw timber
         for i in range(0,len(dPts)-1):
-            print("printing line from {} to {}".format(dPts[i], dPts[i+1]))
+            #print("printing line from {} to {}".format(dPts[i], dPts[i+1]))
             self.pict.create_line(dPts[i][0],dPts[i][1],dPts[i+1][0],dPts[i+1][1])
         
         #calculate coordinates of the CTR point on canvas. i.e. intersection of timber center line with end line of timber
@@ -115,7 +115,8 @@ class drawConnection():
             startX = ctr[0] + row.bolts[0].coordinates[0] * scale
             startY = ctr[1] - row.bolts[0].coordinates[1] * scale
             endX = ctr[0] + row.bolts[-1].coordinates[0] * scale
-            endY = ctr[0] - row.bolts[-1].coordinates[1] * scale
+            endY = ctr[1] - row.bolts[-1].coordinates[1] * scale
+            print("startY = {}, endY = {}".format(startY, endY))
             
             self.pict.create_line(startX,startY,endX,endY, fill = "red")
             
@@ -127,6 +128,7 @@ class drawConnection():
             self.pict.create_text(x, y, text = no, fill = "orange")
     
     def drawConnection(self):
+        self.pict.delete("all") #clear canvas
         drawParams = self.drawTimber() #draws timber + extracts drawing parameters
         scale = drawParams["scale"]
         ctr = drawParams["ctr"]
