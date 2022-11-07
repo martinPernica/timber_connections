@@ -137,6 +137,77 @@ class drawConnection():
         self.drawLineNumbers(ctr, scale)
         #self.container.mainloop()
 
+class textOutputConnection():
+    '''member = instance of member class
+    groupOfBolts = instance of groupOfBolts class
+    textWidget = instance of tk.Text widget
+    '''
+    def __init__(self, textWidget, member, groupOfBolts = 1):
+        self.member = member
+        self.groupOfBolts = groupOfBolts
+        self.textWidget = textWidget
+    
+    def fillGaps(self,tab, lineNo):
+        index = str(lineNo)+ "." + str(0)
+        length = len(self.textWidget.get(index,"end"))
+        while True:
+            if tab > length:
+                self.textWidget.insert("end"," ")
+                length = len(self.textWidget.get(index,"end"))
+            else:
+                break
+    
+    def nextLine(self):
+        return int(self.textWidget.index('end').split(".")[0])
+    
+    def memberString(self):
+        '''writes string describing member
+        '''
+        tabs = [0, 10, 20, 30]
+        header = ["h [mm]", "b [mm]", "\u03b1 [\u00b0]", "\u03c1 [kg/m3]"]
+        i = 0
+        for col in tabs:
+            pos = str(1) + "." + str(col)
+            self.fillGaps(col,1)
+            self.textWidget.insert(pos,header[i])
+            i += 1
+        self.textWidget.insert("end","\n")
+        vals = []
+        vals.append(self.member.h)
+        vals.append(self.member.t)
+        vals.append(self.member.beta)
+        vals.append(self.member.ro)
+        i = 0
+        for col in tabs:
+            pos = str(2) + "." + str(col)
+            self.fillGaps(col,2)
+            self.textWidget.insert(pos,vals[i])
+            i += 1    
+    
+    def boltsString(self):
+        '''writes string describing groupOfBolts
+        '''
+        pos = str(self.nextLine()) + "." + str(0)
+        self.textWidget.insert(pos, "SKUPINA ŠROUBÚ\n")
+        tabs = [0, 10, 20, 30,40,50,60]
+        header = ["no", "d [mm]", "fu [MPa]", "X [mm]", "Y [mm]", "n [-]", "a1 [mm]"]
+        i = 0
+        for col in tabs:
+            pos = str(self.nextLine()) + "." + str(0)
+            self.fillGaps(col,self.nextLine()-1)
+            self.textWidget.insert(pos,header[i])
+            i += 1
+        
+    
+    def textOutput(self):
+        self.textWidget.delete("1.0", tkinter.END)
+        self.memberString()
+        self.textWidget.insert("end","\n\n")
+        self.boltsString()
+    
+
+
+
 if __name__ == "__main__":
     bolts1 = []
     for i in range(0,5):

@@ -119,12 +119,24 @@ btn_boltRemove = tk.Button(
     )
 btn_boltRemove.grid(column = 0, row = 8)
 
+#acting forces input
+inputTextContainer = tk.Frame(
+    master = window,
+    relief = tk. GROOVE,
+    borderwidth = 5
+)
+
+inputTextContainer.grid(column = 0, row = 2, sticky = "nsew", columnspan = 2)
+text_member = tk.Text(master = inputTextContainer)
+text_member.pack()
+
+
 
 for i in range(2):
     print(i)
     window.columnconfigure(i,weight=1,minsize = 75)
 
-for i in range(2):
+for i in range(3):
     window.rowconfigure(i,weight = 1, minsize = 75)
 
 #handler functions
@@ -150,6 +162,7 @@ def changeMember(h_input, b_input, beta_input,ro_input, member,connection):
     except:
         pass
     connection.drawConnection()
+    textOutputConnection.textOutput()
 
 def addBolts(d_input, fu_input, x_input, y_input, n_input, a1_input, member, group, connection):
     try:
@@ -207,5 +220,8 @@ if __name__ == "__main__":
 
     connection = drawingScripts.drawConnection(canvasContainer, member, group)
     connection.drawConnection()
+    
+    textOutputConnection = drawingScripts.textOutputConnection(text_member, member)
+    textOutputConnection.textOutput()
 
 window.mainloop()
