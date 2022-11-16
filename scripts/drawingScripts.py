@@ -188,7 +188,7 @@ class textOutputConnection():
         '''writes string describing groupOfBolts
         '''
         pos = str(self.nextLine()) + "." + str(0)
-        self.textWidget.insert(pos, "SKUPINA ŠROUBÚ\n")
+        self.textWidget.insert(pos, "SKUPINA ŠROUBŮ\n")
         tabs = [0, 10, 20, 30,40,50,60]
         header = ["no", "d [mm]", "fu [MPa]", "X [mm]", "Y [mm]", "n [-]", "a1 [mm]"]
         i = 0
@@ -197,6 +197,23 @@ class textOutputConnection():
             self.fillGaps(col,self.nextLine()-1)
             self.textWidget.insert(pos,header[i])
             i += 1
+        self.textWidget.insert("end", "\n")
+        for row in self.groupOfBolts.rows:
+            vals = []
+            vals.append(int(row.no))
+            vals.append(int(row.bolts[0].d))
+            vals.append(int(row.bolts[0].fu))
+            vals.append(int(row.start[0]))
+            vals.append(int(row.start[1]))
+            vals.append(int(row.n()))
+            vals.append(int(row.a1))
+            i = 0
+            for col in tabs:
+                pos = str(self.nextLine()) + "." + str(col)
+                self.fillGaps(col, self.nextLine()-1)
+                self.textWidget.insert(pos,vals[i])
+                i += 1
+            self.textWidget.insert("end", "\n")
         
     
     def textOutput(self):

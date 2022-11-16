@@ -183,6 +183,7 @@ def addBolts(d_input, fu_input, x_input, y_input, n_input, a1_input, member, gro
     row = groupOfBolts.Row([x,y], a1, bolts)
     group.addRow(row)
     connection.drawConnection()
+    textOutputConnection.textOutput()
 
 def remBolts(rowNumber_input, group, connection):
     try:
@@ -191,6 +192,7 @@ def remBolts(rowNumber_input, group, connection):
         return
     group.deleteRow(no)
     connection.drawConnection()
+    textOutputConnection.textOutput()
 
 if __name__ == "__main__":
     bolts1 = []
@@ -221,7 +223,7 @@ if __name__ == "__main__":
     connection = drawingScripts.drawConnection(canvasContainer, member, group)
     connection.drawConnection()
     
-    textOutputConnection = drawingScripts.textOutputConnection(text_member, member)
+    textOutputConnection = drawingScripts.textOutputConnection(text_member, member, group)
     textOutputConnection.textOutput()
 
 window.mainloop()
