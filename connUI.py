@@ -26,7 +26,7 @@ timberContainer = tk.Frame(
 
 timberContainer.grid(row = 0, column = 1, padx = 0, pady = 0, sticky = "nsew")
 #...timber input labels
-timbLabels = ["h = ", "b = ", "\u03b1 =", "\u03c1 ="]
+timbLabels = ["h = ", "b = ", "\u03b1 =", "\u03c1k =", "\u03c1m =", "tp ="]
 i = 0
 for lab in timbLabels:
     label = tk.Label(master = timberContainer, text = lab)
@@ -44,10 +44,14 @@ ent_timbBeta = tk.Entry(master = timberContainer)
 ent_timbBeta.grid(row = 2, column = 1)
 ent_timbRo = tk.Entry(master = timberContainer)
 ent_timbRo.grid(row = 3, column = 1)
+ent_timbRoM = tk.Entry(master = timberContainer)
+ent_timbRoM.grid(row = 4, column = 1)
+ent_plateThick = tk.Entry(master = timberContainer)
+ent_plateThick.grid(row = 5, column = 1)
 
 #...timber input units
 i = 0
-timbUnits = ["mm", "mm", "\u00b0", "kg/m3"]
+timbUnits = ["mm", "mm", "\u00b0", "kg/m3", "kg/m3", "mm"]
 for unit in timbUnits:
     label = tk.Label(master = timberContainer, text = unit)
     label.grid(row = i, column = 2)
@@ -57,9 +61,9 @@ for unit in timbUnits:
 btn_timb = tk.Button(
     master = timberContainer, 
     text = "nastavit",
-    command = lambda: changeMember(ent_timbHeight, ent_timbBreadth, ent_timbBeta, ent_timbRo, member, connection)
+    command = lambda: changeMember(ent_timbHeight, ent_timbBreadth, ent_timbBeta, ent_timbRo, ent_timbRoM, ent_plateThick, member, connection, textOutputConnection, group)
 )
-btn_timb.grid(row = 4, column = 1)
+btn_timb.grid(row = 6, column = 1)
 
 #bolt group input
 boltContainer = tk.Frame(
@@ -119,28 +123,59 @@ btn_boltRemove = tk.Button(
     )
 btn_boltRemove.grid(column = 0, row = 8)
 
-#acting forces input
+#intput text info
 inputTextContainer = tk.Frame(
     master = window,
-    relief = tk. GROOVE,
-    borderwidth = 5
+    relief = tk.GROOVE,
+    borderwidth = 5,
 )
 
 inputTextContainer.grid(column = 0, row = 2, sticky = "nsew", columnspan = 2)
-text_member = tk.Text(master = inputTextContainer)
+text_member = tk.Text(master = inputTextContainer, height = 10)
 text_member.pack()
 
+#acting forces input
+inputForcesContainer = tk.Frame(
+    master = window,
+    relief = tk.GROOVE,
+    borderwidth = 5
+)
 
+inputForcesContainer.grid(column = 0, row = 3, sticky = "nsew", columnspan = 2)
+for i in range(0,6):
+    inputForcesContainer.columnconfigure(i,minsize = 150)
+#...acting forces input fields
+force_labs = ["Moment", "Posouvací síla", "Normálová síla"]
+force_units = ["kNm", "kN", "kN"]
+
+i = 0
+for lab in force_labs:
+    lab_desc = tk.Label(master = inputForcesContainer, text = lab)
+    lab_desc.grid(row = 1, column = i * 2, columnspan = 2, sticky = "ew")
+    i += 1
+
+inp_mom = tk.Entry(master = inputForcesContainer)
+inp_mom.grid(row = 2, column = 0)
+inp_shear = tk.Entry(master = inputForcesContainer)
+inp_shear.grid(row = 2, column = 2)
+inp_axial = tk.Entry(master = inputForcesContainer)
+inp_axial.grid(row = 2, column = 4)
+
+i = 0
+for unit in force_units:
+    lab_unit = tk.Label(master = inputForcesContainer, text = unit)
+    lab_unit.grid(row = 2, column = i * 2 + 1)
+    i += 1
 
 for i in range(2):
     print(i)
     window.columnconfigure(i,weight=1,minsize = 75)
 
-for i in range(3):
+for i in range(4):
     window.rowconfigure(i,weight = 1, minsize = 75)
 
 #handler functions
-def changeMember(h_input, b_input, beta_input,ro_input, member,connection):
+def changeMember(h_input, b_input, beta_input,ro_input,roM_input, tp_input, member,connection, textOutputConnection, groupOfBolts):
     try:
         h = int(h_input.get())
         member.changeH(h)
@@ -149,6 +184,8 @@ def changeMember(h_input, b_input, beta_input,ro_input, member,connection):
     try:
         b = int(b_input.get())
         member.changeT(b)
+        t = (member.t - member.tp) / 2
+        groupOfBolts.changeT(t)
     except:
         pass
     try:        
@@ -159,6 +196,16 @@ def changeMember(h_input, b_input, beta_input,ro_input, member,connection):
     try:
         ro = int(ro_input.get())
         member.changeRo(ro)
+    except:
+        pass
+    try:
+        roM = int(roM_input.get())
+        member.changeRoM(roM)
+    except:
+        pass
+    try:
+        tp = int(tp_input.get())
+        member.changeTp(tp)
     except:
         pass
     connection.drawConnection()
@@ -175,10 +222,11 @@ def addBolts(d_input, fu_input, x_input, y_input, n_input, a1_input, member, gro
     except:
         return
     ro = member.ro
+    roM = member.roM
     t = member.t/2
     bolts = []
     for i in range(n):
-        bolt = connectors.bolt(d, fu, ro, 0, t)
+        bolt = connectors.bolt(d, fu, ro, 0, t, roM = roM)
         bolts.append(bolt)
     row = groupOfBolts.Row([x,y], a1, bolts)
     group.addRow(row)
@@ -197,17 +245,17 @@ def remBolts(rowNumber_input, group, connection):
 if __name__ == "__main__":
     bolts1 = []
     for i in range(0,5):
-        bolt = connectors.bolt(16,460,350,0*i,100)
+        bolt = connectors.bolt(16,460,350,0*i,100, roM = 450)
         bolts1.append(bolt)
         
     bolts2 = []
     for i in range(0,1):
-        bolt = connectors.bolt(16,460,350,0*i,100)
+        bolt = connectors.bolt(16,460,350,0*i,100, roM = 450)
         bolts2.append(bolt)
         
     bolts3 = []
     for i in range(0,5):
-        bolt = connectors.bolt(16,460,350,50*i,100)
+        bolt = connectors.bolt(16,460,350,50*i,100, roM = 450)
         bolts3.append(bolt)
         
 

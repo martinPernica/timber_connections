@@ -163,8 +163,8 @@ class textOutputConnection():
     def memberString(self):
         '''writes string describing member
         '''
-        tabs = [0, 10, 20, 30]
-        header = ["h [mm]", "b [mm]", "\u03b1 [\u00b0]", "\u03c1 [kg/m3]"]
+        tabs = [0, 10, 20, 30, 45, 60]
+        header = ["h [mm]", "b [mm]", "\u03b1 [\u00b0]", "\u03c1k [kg/m3]", "\u03c1k [kg/m3]", "tp [mm]"]
         i = 0
         for col in tabs:
             pos = str(1) + "." + str(col)
@@ -177,6 +177,8 @@ class textOutputConnection():
         vals.append(self.member.t)
         vals.append(self.member.beta)
         vals.append(self.member.ro)
+        vals.append(self.member.roM)
+        vals.append(self.member.tp)
         i = 0
         for col in tabs:
             pos = str(2) + "." + str(col)

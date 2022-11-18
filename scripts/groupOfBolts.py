@@ -195,11 +195,13 @@ class Member():
     beta: angle of chamfer [degree]
     '''
     
-    def __init__(self,t,h,beta=0, ro = 350):
+    def __init__(self,t,h,beta=0, ro = 350, roM = 400, tp = 0):
         self.t = t
         self.h = h
         self.beta = beta
         self.ro = ro
+        self.roM = roM
+        self.tp = tp
     
     def changeT(self, t):
         self.t = t
@@ -212,6 +214,12 @@ class Member():
     
     def changeRo(self, ro):
         self.ro = ro
+        
+    def changeRoM(self, roM):
+        self.roM = roM
+    
+    def changeTp(self, tp):
+        self.tp = tp
 
 class GroupOfBolts():
     '''class defining group of bolts in timber joint

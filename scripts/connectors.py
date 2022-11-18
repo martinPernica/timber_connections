@@ -1,7 +1,7 @@
 import math
 
 class bolt():
-    def __init__(self, d, fu, ro, alfa, t, tp = 0, woodType = "softWood", board = "No"):
+    def __init__(self, d, fu, ro, alfa, t, tp = 0, woodType = "softWood", board = "No", roM = 400):
         '''woodTypes: Board, Softwood, LVL, Hardwood. Not important for boards
         board: No, plywood, OSB
         t = thickness of timber
@@ -15,6 +15,7 @@ class bolt():
         self.board = board
         self.t = float(t)
         self.tp = float(tp)
+        self.roM = roM
     
     def MyRk(self):
         '''method that calculates characteristic yield moment
@@ -93,6 +94,13 @@ class bolt():
         '''
         
         return 3 * self.d
+        
+    def kSer(self):
+        '''method returning serviceability slip moduli
+        '''
+        
+
+        
     
         
     
