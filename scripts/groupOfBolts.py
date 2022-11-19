@@ -386,17 +386,60 @@ class GroupOfBolts():
         '''
         returnValue = {}
         for row in self.rows:
+            #update characteristic resistances of each bolt to actual input
+            row.charResistance0()
+            row.charResistance90()
+            row.charResistance()
             no = row.no
             returnValue[no] = None
             j = 0
             vals = []
             for bolt in row.bolts:
-                vals.append(bolt.Fvrk)
+                vals.append(kmod * bolt.Fvrk / gammaM)
             returnValue[no] = vals
         if toPrint:
             print(returnValue)
             
         return returnValue
+    
+    def changeT(self, t):
+        '''Changes "t" ie thickness paramater for each bolt in each row
+        '''
+        for row in self.rows:
+            for bolt in row.bolts:
+                bolt.t = t
+    
+    def changeTp(self, tp):
+        '''Changes "tp" ie thickness of plate for each bolt in each row
+        '''
+        for row in self.rows:
+            for bolt in row.bolts:
+                bolt.tp = tp
+    
+    def ctrStifness(self):
+        '''Calculates and returns coordinates of ctr of rotation
+        
+        returns [] where [0] is X coordinate of ctro of stifness resp. [1] is Y coordinate
+        '''
+        product = []
+        for row in self.rows:
+            for bolt in row.bolts:
+                kSer = bolt.kSer()
+                XkSer = bolt.coordinates[0] * kSer
+                YkSer = bolt.coordinates[1] * kSer
+                product.append([kSer, XkSer, YkSer])
+        stiff = 0
+        stiffX = 0
+        stiffY = 0
+        for prod in product:
+            stiff += prod[0]
+            stiffX += prod[1]
+            stiffY += prod[2]
+        x = stiffX / stiff
+        y = stiffY / stiff
+        
+        return [x,y]
+                
             
                           
 

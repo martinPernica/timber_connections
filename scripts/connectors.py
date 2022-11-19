@@ -98,7 +98,7 @@ class bolt():
     def kSer(self):
         '''method returning serviceability slip moduli
         '''
-        
+        return self.roM ** 1.5 * self.d / 23
 
         
     

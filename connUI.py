@@ -167,6 +167,14 @@ for unit in force_units:
     lab_unit.grid(row = 2, column = i * 2 + 1)
     i += 1
 
+#...calculate button
+btn_calc = tk.Button(
+    master = inputForcesContainer,
+    text = "Spočítat",
+    command = lambda: calcCtrStifness(group),
+)
+btn_calc.grid(row = 3, column = 0)
+
 for i in range(2):
     print(i)
     window.columnconfigure(i,weight=1,minsize = 75)
@@ -206,6 +214,7 @@ def changeMember(h_input, b_input, beta_input,ro_input,roM_input, tp_input, memb
     try:
         tp = int(tp_input.get())
         member.changeTp(tp)
+        groupOfBolts.changeTp(tp)
     except:
         pass
     connection.drawConnection()
@@ -241,6 +250,10 @@ def remBolts(rowNumber_input, group, connection):
     group.deleteRow(no)
     connection.drawConnection()
     textOutputConnection.textOutput()
+    
+def calcCtrStifness(group):
+    ctr = group.ctrStifness()
+    print("ctr of stifness: {}".format(ctr))
 
 if __name__ == "__main__":
     bolts1 = []
