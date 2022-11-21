@@ -175,11 +175,22 @@ btn_calc = tk.Button(
 )
 btn_calc.grid(row = 3, column = 0)
 
+#output text info
+outputTextContainer = tk.Frame(
+    master = window,
+    relief = tk.GROOVE,
+    borderwidth = 5,
+)
+
+outputTextContainer.grid(column = 0, row = 4, sticky = "nsew", columnspan = 2)
+text_output = tk.Text(master = outputTextContainer, height = 10)
+text_output.pack()
+
 for i in range(2):
     print(i)
     window.columnconfigure(i,weight=1,minsize = 75)
 
-for i in range(4):
+for i in range(5):
     window.rowconfigure(i,weight = 1, minsize = 75)
 
 #handler functions
@@ -219,6 +230,7 @@ def changeMember(h_input, b_input, beta_input,ro_input,roM_input, tp_input, memb
         pass
     connection.drawConnection()
     textOutputConnection.textOutput()
+    text_output.delete("1.0", tk.END)
 
 def addBolts(d_input, fu_input, x_input, y_input, n_input, a1_input, member, group, connection):
     try:
@@ -241,6 +253,7 @@ def addBolts(d_input, fu_input, x_input, y_input, n_input, a1_input, member, gro
     group.addRow(row)
     connection.drawConnection()
     textOutputConnection.textOutput()
+    text_output.delete("1.0", tk.END)
 
 def remBolts(rowNumber_input, group, connection):
     try:
@@ -250,10 +263,11 @@ def remBolts(rowNumber_input, group, connection):
     group.deleteRow(no)
     connection.drawConnection()
     textOutputConnection.textOutput()
+    text_output.delete("1.0", tk.END)
     
 def calcCtrStifness(group):
     ctr = group.ctrStifness()
-    print("ctr of stifness: {}".format(ctr))
+    textOutputResults.textOutput()  
 
 if __name__ == "__main__":
     bolts1 = []
@@ -286,5 +300,7 @@ if __name__ == "__main__":
     
     textOutputConnection = drawingScripts.textOutputConnection(text_member, member, group)
     textOutputConnection.textOutput()
+    
+    textOutputResults = drawingScripts.textOutputResults(text_output, group)
 
 window.mainloop()

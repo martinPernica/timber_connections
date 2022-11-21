@@ -224,8 +224,48 @@ class textOutputConnection():
         self.textWidget.insert("end","\n\n")
         self.boltsString()
     
+class textOutputResults():
+    '''class handling texto output of results
+    '''
+    def __init__(self, textWidget, groupOfBolts):
+        '''text widget = instance of tk.Text
+        groupOfBolts = instance of scripts.groupOfBolts
+        '''
+        self.textWidget = textWidget
+        self.groupOfBolts = groupOfBolts
+        
+    def fillGaps(self,tab, lineNo):
+        index = str(lineNo)+ "." + str(0)
+        length = len(self.textWidget.get(index,"end"))
+        while True:
+            if tab > length:
+                self.textWidget.insert("end"," ")
+                length = len(self.textWidget.get(index,"end"))
+            else:
+                break
+    
+    def nextLine(self):
+        return int(self.textWidget.index('end').split(".")[0])
+        
+    def ctrStifnessOutput(self):
+        '''function printing out coordinates of ctr of stifness
+        '''
+        self.textWidget.insert("1.0", "POZICE STŘEDU OTÁČENÍ\n")
+        ctr = self.groupOfBolts.ctrStifness()
+        X = round(ctr[0]*10)/10
+        Y = round(ctr[1]*10)/10
+        string = "X = {} mm, Y = {} mm".format(X,Y)
+        pos = str(self.nextLine()) + "." + "0"
+        self.textWidget.insert(pos, string)
+        
+    def textOutput(self):
+        '''wrapper function to create text output of results
+        '''
+        self.textWidget.delete("1.0", tkinter.END)
+        self.ctrStifnessOutput()
 
-
+        
+        
 
 if __name__ == "__main__":
     bolts1 = []
