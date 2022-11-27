@@ -171,7 +171,7 @@ for unit in force_units:
 btn_calc = tk.Button(
     master = inputForcesContainer,
     text = "Spočítat",
-    command = lambda: calcCtrStifness(group),
+    command = lambda: calculateResults(group),
 )
 btn_calc.grid(row = 3, column = 0)
 
@@ -265,34 +265,45 @@ def remBolts(rowNumber_input, group, connection):
     textOutputConnection.textOutput()
     text_output.delete("1.0", tk.END)
     
-def calcCtrStifness(group):
+#calclulate results
+
+def calculateResults(group):
     ctr = group.ctrStifness()
-    textOutputResults.textOutput()  
+    try:
+        moment = float(inp_mom.get())
+    except:
+        moment = 0
+    try:
+        shear = float(inp_shear.get())
+    except:
+        shear = 0
+    try:
+        axial = float(inp_axial.get())
+    except:
+        axial = 0
+    group.forceOnBolts(moment, shear, axial)
+    group.designShearResistance()
+    textOutputResults.textOutput()
+    
 
 if __name__ == "__main__":
     bolts1 = []
-    for i in range(0,5):
-        bolt = connectors.bolt(16,460,350,0*i,100, roM = 450)
+    for i in range(0,2):
+        bolt = connectors.bolt(16,460,350,0*i,200, roM = 450)
         bolts1.append(bolt)
         
     bolts2 = []
-    for i in range(0,1):
-        bolt = connectors.bolt(16,460,350,0*i,100, roM = 450)
+    for i in range(0,2):
+        bolt = connectors.bolt(16,460,350,50*i,200, roM = 450)
         bolts2.append(bolt)
         
-    bolts3 = []
-    for i in range(0,5):
-        bolt = connectors.bolt(16,460,350,50*i,100, roM = 450)
-        bolts3.append(bolt)
-        
 
 
-    row1 = groupOfBolts.Row([80 + 100 * math.tan(45/180*math.pi),100],16*9,bolts1)
-    row2 = groupOfBolts.Row([80 - 100 * math.tan(45/180*math.pi),-100],250,bolts2)
-    row3 = groupOfBolts.Row([80,0],16*9,bolts3) 
+    row1 = groupOfBolts.Row([80,100],200,bolts1)
+    row2 = groupOfBolts.Row([80,-100],200,bolts2)
 
-    member = groupOfBolts.Member(120, 360, 45)
-    group = groupOfBolts.GroupOfBolts([row1, row2, row3], member)
+    member = groupOfBolts.Member(120, 360, 0)
+    group = groupOfBolts.GroupOfBolts([row1, row2], member)
     group.designShearResistance(toPrint = True)
 
     connection = drawingScripts.drawConnection(canvasContainer, member, group)

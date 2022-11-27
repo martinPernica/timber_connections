@@ -163,7 +163,6 @@ class timberPlateTimber():
     
     def FvrkF(self):
         Fvrk = self.fhk1 * self.t1 * self.d
-        print("fhk is : {}".format(self.fhk1))
         return 2 * Fvrk
     
     def FvrkG(self):

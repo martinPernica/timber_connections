@@ -257,12 +257,51 @@ class textOutputResults():
         string = "X = {} mm, Y = {} mm".format(X,Y)
         pos = str(self.nextLine()) + "." + "0"
         self.textWidget.insert(pos, string)
+    
+    def designOutput(self):
+        '''function pringint out acting forces
+        '''
+        pos = str(self.nextLine()) + "." + "0"
+        print("POZICE: {}".format(pos))
+        self.textWidget.insert(pos, "\n\nSÍLY PŮSOBÍCÍ NA ŠROUBY\n")
+        tabs = [0, 10, 20, 30, 40, 50, 60]
+        header = ["šroub", "Fed [N]", "alfa [stup]", "Fvrk0 [N]", "Fvrk90 [N]", "nef [-]", "Fvrk [N]"]
+        i = 0
+        for col in tabs:
+            pos = str(self.nextLine()) + "." + str(0)
+            self.fillGaps(col,self.nextLine()-1)
+            self.textWidget.insert(pos,header[i])
+            i += 1
+        self.textWidget.insert("end", "\n")
+        for row in self.groupOfBolts.rows:
+            n = 1
+            rowNo = row.no
+            neff = round(row.neff()*100)/100
+            for bolt in row.bolts:                
+                boltNo = str(rowNo) + "-" + str(n)
+                force = int(bolt.resForce)
+                alfa = int(bolt.alfa)
+                Fvrk0 = int(bolt.Fvrk0)
+                Fvrk90 = int(bolt.Fvrk90)      
+                Fvrk = int(bolt.Fvrk)
+                vals = [boltNo, force, alfa, Fvrk0, Fvrk90, neff, Fvrk]
+                nextLine = self.nextLine()
+                n += 1
+                j = 0
+                for col in tabs:
+                    self.fillGaps(col, nextLine - 1)
+                    pos = str(nextLine) + "." + str(col)
+                    self.textWidget.insert(pos, str(vals[j]))
+                    j += 1
+                self.textWidget.insert("end", "\n")
+        
         
     def textOutput(self):
         '''wrapper function to create text output of results
         '''
         self.textWidget.delete("1.0", tkinter.END)
         self.ctrStifnessOutput()
+        self.designOutput()
 
         
         
@@ -274,22 +313,17 @@ if __name__ == "__main__":
         bolts1.append(bolt)
         
     bolts2 = []
-    for i in range(0,1):
-        bolt = connectors.bolt(16,460,350,0*i,100)
-        bolts2.append(bolt)
-        
-    bolts3 = []
     for i in range(0,5):
         bolt = connectors.bolt(16,460,350,50*i,100)
-        bolts3.append(bolt)
+        bolts2.append(bolt)
         
 
 
     row1 = groupOfBolts.Row([80 + 100 * math.tan(45/180*math.pi),100],16*9,bolts1)
     row2 = groupOfBolts.Row([80 - 100 * math.tan(45/180*math.pi),-100],250,bolts2)
-    row3 = groupOfBolts.Row([80,0],16*9,bolts3) 
 
-    member = groupOfBolts.Member(120, 360, 45)
+
+    member = groupOfBolts.Member(120, 360, 0)
     group = groupOfBolts.GroupOfBolts([row1, row2, row3], member)
     group.designShearResistance(toPrint = True)
 
