@@ -23,12 +23,16 @@ class drawConnection():
     def maxX(self):
         '''calculates maximal X coordinate of any bolt relative to member reference point
         '''
-        for row in self.group.rows:
-            maxX = 0
-            for bolt in row.bolts:
-                x = bolt.coordinates[0]
-                if x > maxX:
-                    maxX = x
+        maxX = 0
+        try: #try for the case there is any member
+            for row in self.group.rows:
+                maxX = 0
+                for bolt in row.bolts:
+                    x = bolt.coordinates[0]
+                    if x > maxX:
+                        maxX = x
+        except:
+            pass
         return maxX
     
     def drawTimber(self):

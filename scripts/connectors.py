@@ -49,14 +49,15 @@ class bolt():
         
         returns value in [mm]
         '''
-        return (4 + abs(math.cos(self.alfa))) * self.d
+        alfa = self.alfa / 180 * math.pi
+        return (4 + 2 * abs(math.cos(alfa))) * self.d
     
     def a2(self):
         '''method that calculates min a2 distance of the bolt 
         
         returns value in [mm]
         '''
-        return 4 * self.d
+        return 3 * self.d
         
     def a3(self):
         '''method that returns min a3 loaded or unloaded edge distance. 
@@ -70,13 +71,13 @@ class bolt():
             return max(7 * self.d, 80)
         
         elif self.alfa > 90 and self.alfa <150:
-            return (1 + 6 * math.sin(alfa)) * self.d
+            return max(7 * self.d, 80) * abs(math.sin(alfa))
             
         elif self.alfa >= 150 and self.alfa < 210:
-            return 4 * self.d
+            return max(3,5 * self.d, 40)
             
         else:
-            return (1 + 6 * math.sin(alfa)) * self.d
+            return max(7 * self.d, 80) * abs(math.sin(alfa))
             
     def a4t(self):
         '''method that returns min a4 distance to loaded edge. 

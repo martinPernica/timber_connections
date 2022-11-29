@@ -215,11 +215,13 @@ def changeMember(h_input, b_input, beta_input,ro_input,roM_input, tp_input, memb
     try:
         ro = int(ro_input.get())
         member.changeRo(ro)
+        groupOfBolts.changeRo(ro)
     except:
         pass
     try:
         roM = int(roM_input.get())
         member.changeRoM(roM)
+        groupOfBolts.changeRoM(roM)
     except:
         pass
     try:
@@ -244,7 +246,7 @@ def addBolts(d_input, fu_input, x_input, y_input, n_input, a1_input, member, gro
         return
     ro = member.ro
     roM = member.roM
-    t = member.t/2
+    t = (member.t - member.tp) / 2
     bolts = []
     for i in range(n):
         bolt = connectors.bolt(d, fu, ro, 0, t, roM = roM)
@@ -297,14 +299,8 @@ if __name__ == "__main__":
         bolt = connectors.bolt(16,460,350,50*i,200, roM = 450)
         bolts2.append(bolt)
         
-
-
-    row1 = groupOfBolts.Row([80,100],200,bolts1)
-    row2 = groupOfBolts.Row([80,-100],200,bolts2)
-
     member = groupOfBolts.Member(120, 360, 0)
-    group = groupOfBolts.GroupOfBolts([row1, row2], member)
-    group.designShearResistance(toPrint = True)
+    group = groupOfBolts.GroupOfBolts([], member)
 
     connection = drawingScripts.drawConnection(canvasContainer, member, group)
     connection.drawConnection()

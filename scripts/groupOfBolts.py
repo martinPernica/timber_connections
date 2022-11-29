@@ -45,7 +45,10 @@ class Row():
                 "a4t": a4t,
                 "a4c": a4c
             }
-            setattr(bolt, "distances", distances)
+            if hasattr(bolt, "distances"):
+                bolt.distances = distances
+            else:
+                setattr(bolt, "distances", distances)
             
     def boltCoordinates(self):
         '''method adding [x,y] coordinate to each bolt
@@ -278,17 +281,20 @@ class GroupOfBolts():
     def checkA1(self):
         '''method checking min a1 distance of each row
         
-        returns True if check OK otherwise False
+        returns returnValue = [varning message 1, varning message 2, ...]
         '''
-        returnValue = True
+        returnValue = []
         for row in self.rows:
-            a1s = []
+            a1 = row.a1
+            rowNo = row.no
+            i = 1
             for bolt in row.bolts:
-                a1s.append(bolt.distances["a1"])
-            minA1 = max(a1s) #extracts maximum a1 distance from all bolts.
-            
-            if minA1 >= row.a1:
-                returnValue = False #default True value is switched to False once maximum a1 from each bolt is greater than actual a1 distances in model
+                a1min = bolt.distances["a1"]
+                if a1 <= a1min:
+                    no = "{}-{}".format(rowNo,i)
+                    string = "svorník {}: minimální rozteč a1 = {} mm je příliš malá. Minimání rozteč a1min = {} mm".format(no, a1, a1min)
+                    returnValue.append(string)
+                i += 1        
         
         return returnValue
         
@@ -385,6 +391,19 @@ class GroupOfBolts():
         
         return returnValue
         
+    def checkDistances(self):
+        '''method wrapping all distance checks
+        
+        returns returnValue = [warning message 1, warning message 2]
+        '''
+        returnValue = []
+        try:
+            a1 = self.checkA1
+            for message in a1:
+                returnValue.append(message)
+        except
+            pass
+        
     def printBoltCoordinates(self):
         i = 0
         for row in self.rows:
@@ -418,9 +437,25 @@ class GroupOfBolts():
     def changeTp(self, tp):
         '''Changes "tp" ie thickness of plate for each bolt in each row
         '''
+        t = self.member.t
+        teff = (t - tp) / 2
         for row in self.rows:
             for bolt in row.bolts:
                 bolt.tp = tp
+                bolt.t = teff
+    
+    def changeRo(self, ro):
+        '''Changes "ro" for each bolt in group
+        '''
+        for row in self.rows:
+            for bolt in row.bolts:
+                bolt.ro = ro
+    def changeRoM(self, roM):
+        '''Changes "roM" for each bolt in group
+        '''
+        for row in self.rows:
+            for bolt in row.bolts:
+                bolt.roM = roM
     
     def ctrStifness(self):
         '''Calculates and returns coordinates of ctr of rotation
@@ -479,7 +514,7 @@ class GroupOfBolts():
         ctr = self.boltVectors() #updates boltVectors
         M = moment * 10**6 #moment in Nmm
         if M >= 0:
-            xDir = [-1,1] #x direction of vector above / bellow of ctr of stifness
+            xDir = [1,-1] #x direction of vector above / bellow of ctr of stifness
         else:
             xDir = [1,-1]
         self.boltVectors()
@@ -515,18 +550,18 @@ class GroupOfBolts():
             force: float in N
             vector: [] vector of force direction... length corresponds to force
         }
-        V = shear force in kNm (+ is from up to down)
+        V = shear force in kN (+ is from up to down)
         N = axial force in kN (+ is from left to right)
         '''        
         n = 0
         for row in self.rows:
             n += row.n()
         
-        V = -V * 1000 / n
+        V = V * 1000 / n
         N = N * 1000 / n
         
         force = (V ** 2 + N ** 2) ** 0.5
-        vector = [N, V]
+        vector = [-N, V]
         resForces = {
             'force': force,
             'vector': vector        
