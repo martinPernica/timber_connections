@@ -266,7 +266,7 @@ class textOutputResults():
         '''function pringint out acting forces
         '''
         pos = str(self.nextLine()) + "." + "0"
-        print("POZICE: {}".format(pos))
+        #print("POZICE: {}".format(pos))
         self.textWidget.insert(pos, "\n\nSÍLY PŮSOBÍCÍ NA ŠROUBY\n")
         tabs = [0, 10, 20, 30, 40, 50, 60]
         header = ["šroub", "Fed [N]", "alfa [stup]", "Fvrk0 [N]", "Fvrk90 [N]", "nef [-]", "Fvrk [N]"]
@@ -298,6 +298,16 @@ class textOutputResults():
                     self.textWidget.insert(pos, str(vals[j]))
                     j += 1
                 self.textWidget.insert("end", "\n")
+    
+    def edgeDistancesOutput(self):
+        '''function printing out warning messages regarding edge distances
+        '''
+        msg = self.groupOfBolts.checkDistances()
+        pos = str(self.nextLine()) + "." + "0"
+        self.textWidget.insert(pos, "\nKONTROLA VZDÁLENOSTÍ ŠROUBŮ:\n")
+        for msgRow in msg:
+            pos = str(self.nextLine()) + "." + "0"
+            self.textWidget.insert(pos,"\n" + msgRow)
         
         
     def textOutput(self):
@@ -306,6 +316,9 @@ class textOutputResults():
         self.textWidget.delete("1.0", tkinter.END)
         self.ctrStifnessOutput()
         self.designOutput()
+        self.edgeDistancesOutput()
+
+
 
         
         

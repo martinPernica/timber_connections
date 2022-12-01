@@ -220,6 +220,7 @@ class Member():
         self.ro = ro
         self.roM = roM
         self.tp = tp
+        
     
     def changeT(self, t):
         self.t = t
@@ -253,6 +254,7 @@ class GroupOfBolts():
         self.topEdgeY = member.h / 2
         self.bottomEdgeY = - member.h / 2
         self.rowNumbering()
+        self.warningEdge = "svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
         
     def rowNumbering(self):
         '''sets row number to each row
@@ -283,16 +285,24 @@ class GroupOfBolts():
         
         returns returnValue = [varning message 1, varning message 2, ...]
         '''
+        print("Checking A1")
         returnValue = []
+        print(self.rows)
         for row in self.rows:
+            print("Iam here1")
             a1 = row.a1
             rowNo = row.no
             i = 1
+            print("rownNo = {}".format(rowNo))
             for bolt in row.bolts:
-                a1min = bolt.distances["a1"]
+                a1min = round(bolt.a1()*10)/10
+                print("min distance {} - {} = {}".format(rowNo, i, a1min))
                 if a1 <= a1min:
-                    no = "{}-{}".format(rowNo,i)
-                    string = "svorník {}: minimální rozteč a1 = {} mm je příliš malá. Minimání rozteč a1min = {} mm".format(no, a1, a1min)
+                    num = "{}-{}".format(rowNo,i)
+                    #"svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
+                    print(self.warningEdge)
+                    string = self.warningEdge.format(no = num, a = "a1", aVal = a1, amin = "a1min", aminVal = a1min)
+                    print(string)
                     returnValue.append(string)
                 i += 1        
         
@@ -397,12 +407,19 @@ class GroupOfBolts():
         returns returnValue = [warning message 1, warning message 2]
         '''
         returnValue = []
+
+        a1 = self.checkA1()
         try:
-            a1 = self.checkA1
             for message in a1:
                 returnValue.append(message)
-        except
+        except:
             pass
+        
+        if len(returnValue) == 0:
+            return ["VZDÁLENOSTI SVORNÍKŮ V POŘÁDKŮ"]
+        else:
+            return returnValue
+        
         
     def printBoltCoordinates(self):
         i = 0
