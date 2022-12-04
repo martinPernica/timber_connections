@@ -263,6 +263,7 @@ class GroupOfBolts():
         for row in self.rows:
             setattr(row, "no", i)
             i += 1
+        self.noOfRows = len(self.rows)
             
     def deleteRow(self, no):
         '''delete row with a "no" number and reruns numbering of all rows
@@ -285,24 +286,17 @@ class GroupOfBolts():
         
         returns returnValue = [varning message 1, varning message 2, ...]
         '''
-        print("Checking A1")
         returnValue = []
-        print(self.rows)
         for row in self.rows:
-            print("Iam here1")
             a1 = row.a1
             rowNo = row.no
             i = 1
-            print("rownNo = {}".format(rowNo))
             for bolt in row.bolts:
                 a1min = round(bolt.a1()*10)/10
-                print("min distance {} - {} = {}".format(rowNo, i, a1min))
                 if a1 <= a1min:
                     num = "{}-{}".format(rowNo,i)
                     #"svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
-                    print(self.warningEdge)
                     string = self.warningEdge.format(no = num, a = "a1", aVal = a1, amin = "a1min", aminVal = a1min)
-                    print(string)
                     returnValue.append(string)
                 i += 1        
         
@@ -311,22 +305,24 @@ class GroupOfBolts():
     def checkA2(self):
         '''method checking min a2 distance of each row
         
-        returns True if check OK otherwise False
+        returns returnValue = [varning message 1, varning message 2, ...]
         '''
-        returnValue = True
+        returnValue = []
+        print("noOfRows = {}".format(self.noOfRows))
         for i in range(0, self.noOfRows):
-            minA2 = self.rows[i].bolts[0].distances["a2"] #min a2 is the same for all bolts provided they have the same diamteter... which I assume they will have
+            minA2 = self.rows[i].bolts[0].a2() #min a2 is the same for all bolts provided they have the same diamteter... which I assume they will have
             yi = self.rows[i].start[1] #get y coordinate of the beginning of row
+            print("minA2 = {}".format(minA2))
             for j in range(0, self.noOfRows):
                 if i == j:
-                    continue
                     print("passing")
+                    continue
                 yj = self.rows[j].start[1]
                 distance = abs(yi - yj)
-                print("distance between row {} and {} is {} mm".format(i,j,distance))
+                string = "vzdálenost a2 mezi řadou {} a {} = {} mm < a2min = {} mm -> NEVYHOVUJE".format(i,j,distance, minA2)
                 if distance <= minA2:
-                    returnValue = False #swithc returnValue to false if a2 is not satisfactory
-                    print("distance is not satisfactory")
+                    string = "vzdálenost a2 mezi řadou {} a {} = {} mm < a2min = {} mm -> NEVYHOVUJE".format(i,j,distance, minA2)
+                    returnValue.append(string)
                     
         return returnValue
         
@@ -336,19 +332,20 @@ class GroupOfBolts():
         returns True if check OK otherwise False
         '''
         beta = self.member.beta/180 * math.pi
-        returnValue = True
+        returnValue = []
         for row in self.rows:
-            minA3 = row.bolts[0].distances["a3"]
+            minA3 = round(row.bolts[0].a3()*10)/10
             x = row.start[0]
             y = row.start[1]
+            rowNo = row.no
             #calculate X coordinate of intersection betweel center line of row and the end of timber
             xEdge = y * math.tan(beta)
             #distance between end of member and edge end of row
             a3 = x - xEdge
-            print("end distance a3 is {} mm, minimum distance a3 is {} mm".format(a3, minA3))
             if minA3 > a3:
-                print("distance a3 is not satisfactory")
-                returnValue = False
+                #"svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
+                string = self.warningEdge.format(no = str(row.no) + "-1",a = "a3", aVal = a3, amin = "a3min", aminVal = minA3)
+                returnValue.append(string)
                 
         return returnValue
     
@@ -357,47 +354,46 @@ class GroupOfBolts():
         
         returns True if check OK otherwise False
         '''
-        returnValue = True
+        returnValue = []
         for row in self.rows:
-            rowNo = self.rows.index(row)
+            rowNo = row.no
             y = row.start[1]
             toTop = self.member.h / 2 - y
             toBottom = self.member.h / 2 + y
-            print("row no {} to TOP {} mm to BOTTOM {} mm".format(rowNo, toTop, toBottom))
-                        
+                 
+            i = 1
             for bolt in row.bolts:
-                boltNo = row.bolts.index(bolt)
-                print("row no {} - bolt no {} - alfa  {} degree".format(rowNo, boltNo,bolt.alfa))
                 
-                minA4t = bolt.distances["a4t"]
-                minA4c = bolt.distances["a4c"]
+                minA4t = round(bolt.a4t()*10)/10
+                minA4c = round(bolt.a4c()*10)/10
                 alfa = bolt.alfa / 180 * math.pi
                 
                 if alfa <= math.pi:
                     if minA4t > toBottom:
-                        returnValue = False
-                        print("BOTTOM edge is loaded, min a4t {} mm is NOT OK".format(minA4t))
-                    else:
-                        print("BOTTOM edge is loaded, min a4t {} mm is OK".format(minA4t))
+                        boltNo = str(rowNo) + "-" + str(i)
+                        "svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
+                        string = self.warningEdge.format(no = boltNo, a = "a4t", aVal = toBottom, amin = "a4tmin", aminVal = minA4t)
+                        returnValue.append(string)
                     
                     if minA4c > toTop:
-                        returnValue = False
-                        print("TOP edge is NOTloaded, min a4c {} mm is NOT OK".format(minA4c))
-                    else:
-                        print("TOP edge is NOTloaded, min a4c {} mm is OK".format(minA4c))
-                
+                        boltNo = str(rowNo) + "-" + str(i)
+                        "svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
+                        string = self.warningEdge.format(no = boltNo, a = "a4c", aVal = toTop, amin = "a4cmin", aminVal = minA4c)
+                        returnValue.append(string)
+           
                 else:
                     if minA4t > toTop:
-                        returnValue = False 
-                        print("BOTTOM edge is NOTloaded, min a4c {} mm is NOT OK".format(minA4c))
-                    else:
-                        print("BOTTOM edge is NOTloaded, min a4c {} mm is OK".format(minA4c))
+                        boltNo = str(rowNo) + "-" + str(i)
+                        "svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
+                        string = self.warningEdge.format(no = boltNo, a = "a4t", aVal = toTop, amin = "a4tmin", aminVal = minA4t)
+                        returnValue.append(string)
                     
                     if minA4c > toBottom:
-                        returnValue = False
-                        print("TOP edge is loaded, min a4t {} mm is NOT OK".format(minA4t))
-                    else:
-                        print("TOP edge is loaded, min a4t {} mm is OK".format(minA4t))
+                        boltNo = str(rowNo) + "-" + str(i)
+                        "svorník {no}: {a} = {aVal} mm < {amin} = {aminVal} mm -> NEVYHOVUJE"
+                        string = self.warningEdge.format(no = boltNo, a = "a4c", aVal = toBottom, amin = "a4cmin", aminVal = minA4c)
+                        returnValue.append(string)
+                i += 1
         
         return returnValue
         
@@ -411,6 +407,27 @@ class GroupOfBolts():
         a1 = self.checkA1()
         try:
             for message in a1:
+                returnValue.append(message)
+        except:
+            pass
+        
+        a2 = self.checkA2()
+        try:
+            for message in a2:
+                returnValue.append(message)
+        except:
+            pass
+        
+        a3 = self.checkA3()
+        try:
+            for message in a3:
+                returnValue.append(message)
+        except:
+            pass
+            
+        a4 = self.checkA4()
+        try:
+            for message in a4:
                 returnValue.append(message)
         except:
             pass

@@ -85,8 +85,11 @@ class bolt():
         returns value in [mm]
         '''
         alfa = self.alfa / 180 * math.pi
+        a4tmin = max((2 + 2 * abs(math.sin(alfa))) * self.d, 3 * self.d)
         
-        return max((2 + 2 * math.sin(alfa)) * self.d, 3 * self.d) 
+        print("a4tmin = {}, alfa = {}".format(a4tmin, self.alfa))
+        
+        return a4tmin
         
     def a4c(self):
         '''method that returns min a4 distance to UNloaded edge. 
